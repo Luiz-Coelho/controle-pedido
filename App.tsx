@@ -1,20 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import "react-native-get-random-values";
+import "./polyfills";
+
+import "./global.css";
+import { StatusBar } from "react-native";
+import AppNavigator from "./navigation";
+import Toast from "react-native-toast-message";
+
+import { useInitMigrations } from "./hooks/useInitMigrations";
+import { LoadingScreen } from "./screens/LoadingScreen";
 
 export default function App() {
+  const { ready } = useInitMigrations();
+
+  if (!ready) return <LoadingScreen />;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <AppNavigator />
+      <Toast />
+      <StatusBar barStyle={"default"} />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
