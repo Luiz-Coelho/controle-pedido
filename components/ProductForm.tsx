@@ -1,6 +1,9 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { ProductFormData } from "../schemas/productSchema";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { formStyles } from "../styles/formStyles";
+import { TextInput } from "react-native-paper";
+import CurrencyInput from "react-native-currency-input";
 
 interface ProductFormProps {
   onSubmit: (data: ProductFormData) => void;
@@ -15,46 +18,57 @@ export function ProductForm({ onSubmit, isEditing }: ProductFormProps) {
   } = useFormContext<ProductFormData>();
 
   return (
-    <View className="p-4">
+    <View style={formStyles.container}>
       <Controller
         control={control}
         name="name"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="Nome do Produto"
-            placeholderTextColor="#aaa"
+            label="Nome"
             value={value}
             onChangeText={onChange}
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+            mode="flat"
+            error={!!errors.name}
+            style={formStyles.input}
           />
         )}
       />
       {errors.name && (
-        <Text className="text-red-500">{errors.name.message}</Text>
+        <Text style={formStyles.error}>{errors.name.message}</Text>
       )}
+
       <Controller
         control={control}
         name="price"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="Preço do produto"
-            placeholderTextColor="#aaa"
+            label="Preço"
             value={value?.toString()}
-            onChangeText={onChange}
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+            mode="flat"
             keyboardType="numeric"
+            error={!!errors.price}
+            style={formStyles.input}
+            render={(props) => (
+              <CurrencyInput
+                {...props}
+                value={value}
+                onChangeValue={(value) => onChange(value)}
+                prefix="R$ "
+                delimiter="."
+                separator=","
+                precision={2}
+                keyboardType="numeric"
+              />
+            )}
           />
         )}
       />
       {errors.price && (
-        <Text className="text-red-500">{errors.price.message}</Text>
+        <Text style={formStyles.error}>{errors.price.message}</Text>
       )}
 
-      <Pressable
-        onPress={handleSubmit(onSubmit)}
-        className="bg-green-600 p-3 rounded mt-4"
-      >
-        <Text className="text-white text-center">
+      <Pressable onPress={handleSubmit(onSubmit)} style={formStyles.button}>
+        <Text style={formStyles.buttonText}>
           {isEditing ? "Atualizar" : "Salvar"}
         </Text>
       </Pressable>

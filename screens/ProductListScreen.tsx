@@ -13,6 +13,7 @@ import { showError, showSuccess } from "../utils/showToast";
 import { Navigation } from "../types/Navigation";
 import { ProductCard } from "../components/ProductCard";
 import { Screen } from "../components/Screen";
+import { Loading } from "../components/Loading";
 
 export default function ProductListScreen() {
   const navigation = useNavigation<Navigation>();
@@ -47,13 +48,7 @@ export default function ProductListScreen() {
   };
 
   if (loading) {
-    return (
-      <Screen>
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" />
-        </View>
-      </Screen>
-    );
+    return <Loading />;
   }
 
   return (

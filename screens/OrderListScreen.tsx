@@ -15,6 +15,7 @@ import { showError, showSuccess } from "../utils/showToast";
 import { Navigation } from "../types/Navigation";
 import { OrderCard } from "../components/OrderCard";
 import { Screen } from "../components/Screen";
+import { Loading } from "../components/Loading";
 
 export default function OrderListScreen() {
   const navigation = useNavigation<Navigation>();
@@ -28,6 +29,7 @@ export default function OrderListScreen() {
         OrderService.getAllWithTotals(),
         CustomerService.getAll(),
       ]);
+      console.log("Pedidos carregados do banco:", ordersData);
       setOrders(ordersData);
       setCustomers(customersData);
     } catch {
@@ -57,13 +59,7 @@ export default function OrderListScreen() {
     customers.find((customer) => customer.id === id);
 
   if (loading) {
-    return (
-      <Screen>
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" />
-        </View>
-      </Screen>
-    );
+    return <Loading />;
   }
 
   return (

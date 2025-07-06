@@ -9,6 +9,7 @@ import { showError, showSuccess } from "../utils/showToast";
 import { ActivityIndicator, View } from "react-native";
 import { ProductForm } from "../components/ProductForm";
 import { Screen } from "../components/Screen";
+import { Loading } from "../components/Loading";
 
 type RouteParams = { productId?: number };
 
@@ -67,11 +68,7 @@ export default function ProductFormScreen() {
   };
 
   if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-950">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <Loading />;
   }
 
   return (

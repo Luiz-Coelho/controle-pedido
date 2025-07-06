@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Navigation } from "../types/Navigation";
 import { CustomerForm } from "../components/CustomerForm";
 import { Screen } from "../components/Screen";
+import { Loading } from "../components/Loading";
 
 type RouteParams = { customerId?: number };
 
@@ -37,7 +38,8 @@ export default function CustomerFormScreen() {
 
         form.reset({
           name: customer.name,
-          cpfOrCnpj: customer.cpfOrCnpj,
+          documentType: customer.documentType as "cpf" | "cnpj",
+          document: customer.document,
           cep: customer.cep,
           address: customer.address,
         });
@@ -67,11 +69,7 @@ export default function CustomerFormScreen() {
   };
 
   if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-950">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <Loading />;
   }
 
   return (

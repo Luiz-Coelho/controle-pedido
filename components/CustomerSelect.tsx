@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Customer } from "../types/Customer";
+import { Text, View } from "react-native";
 import { CustomerService } from "../services/CustomerService";
+import { Customer } from "../types/Customer";
 import { showError } from "../utils/showToast";
 import { ComboBox } from "./ComboBox";
-import { Text } from "react-native";
+import { formStyles } from "../styles/formStyles";
 
 type Props = {
   value: number | undefined;
@@ -15,16 +16,9 @@ export function CustomerSelect({ value, onChange, error }: Props) {
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const list = await CustomerService.getAll();
-        setCustomers(list);
-      } catch (error) {
-        showError("Erro ao carregar clientes.");
-      }
-    };
-
-    fetchCustomers();
+    CustomerService.getAll()
+      .then(setCustomers)
+      .catch(() => showError("Erro ao carregar clientes."));
   }, []);
 
   const options = customers.map((customer) => ({
@@ -33,14 +27,14 @@ export function CustomerSelect({ value, onChange, error }: Props) {
   }));
 
   return (
-    <>
+    <View style={{ zIndex: 1000 }}>
       <ComboBox
         options={options}
         value={value}
         onChange={onChange}
         placeholder="Selecione um Cliente"
       />
-      {error && <Text className="text-red-500 mt-1">{error}</Text>}
-    </>
+      {error && <Text style={formStyles.error}>{error}</Text>}
+    </View>
   );
 }

@@ -1,6 +1,11 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { CustomerFormData } from "../schemas/customerSchema";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, View, StyleSheet } from "react-native";
+import { SegmentedButtons, TextInput } from "react-native-paper";
+import MaskInput from "react-native-mask-input";
+import { getCepMask, getDocumentMask } from "../utils/masks";
+import { formStyles } from "../styles/formStyles";
+import { theme } from "../styles/theme";
 
 interface CustomerFormProps {
   onSubmit: (data: CustomerFormData) => void;
@@ -14,41 +19,87 @@ export function CustomerForm({ onSubmit, isEditing }: CustomerFormProps) {
     formState: { errors },
   } = useFormContext<CustomerFormData>();
 
+  const documentType = useWatch({ control, name: "documentType" });
+
+  const documentMask = getDocumentMask(documentType);
+
+  const cepMask = getCepMask();
+
   return (
-    <View className="flex-1 p-4">
+    <View style={formStyles.container}>
       <Controller
         control={control}
         name="name"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="Nome"
-            placeholderTextColor="#aaa"
+            label="Nome"
             value={value}
             onChangeText={onChange}
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+            mode="flat"
+            error={!!errors.name}
+            style={formStyles.input}
           />
         )}
       />
       {errors.name && (
-        <Text className="text-red-500 mb-2">{errors.name.message}</Text>
+        <Text style={formStyles.error}>{errors.name.message}</Text>
       )}
 
       <Controller
         control={control}
-        name="cpfOrCnpj"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="CPF/CNPJ"
-            placeholderTextColor="#aaa"
-            value={value}
-            onChangeText={onChange}
-            keyboardType="numeric"
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+        name="documentType"
+        render={({ field }) => (
+          <SegmentedButtons
+            value={field.value}
+            onValueChange={field.onChange}
+            buttons={[
+              { value: "cpf", label: "CPF" },
+              { value: "cnpj", label: "CNPJ" },
+            ]}
+            style={formStyles.segmented}
+            theme={{
+              colors: {
+                primary: theme.colors.primary,
+                onSurface: theme.colors.text,
+                surface: theme.colors.background,
+                secondaryContainer: theme.colors.primary,
+                onSecondaryContainer: theme.colors.textMuted,
+              },
+            }}
           />
         )}
       />
-      {errors.cpfOrCnpj && (
-        <Text className="text-red-500 mb-2">{errors.cpfOrCnpj.message}</Text>
+      {errors.documentType && (
+        <Text style={formStyles.error}>{errors.documentType.message}</Text>
+      )}
+
+      {documentType && (
+        <Controller
+          control={control}
+          name="document"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              label={documentType === "cpf" ? "CPF" : "CNPJ"}
+              value={value}
+              mode="flat"
+              keyboardType="numeric"
+              error={!!errors.document}
+              style={formStyles.input}
+              render={(props) => (
+                <MaskInput
+                  {...props}
+                  value={value}
+                  onChangeText={(masked, unmasked) => onChange(unmasked)}
+                  mask={documentMask}
+                  style={[props.style, formStyles.maskInput]}
+                />
+              )}
+            />
+          )}
+        />
+      )}
+      {errors.document && (
+        <Text style={formStyles.error}>{errors.document.message}</Text>
       )}
 
       <Controller
@@ -56,41 +107,46 @@ export function CustomerForm({ onSubmit, isEditing }: CustomerFormProps) {
         name="cep"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="CEP"
-            placeholderTextColor="#aaa"
+            label="CEP"
             value={value}
-            onChangeText={onChange}
+            mode="flat"
             keyboardType="numeric"
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+            error={!!errors.cep}
+            style={formStyles.input}
+            render={(props) => (
+              <MaskInput
+                {...props}
+                value={value}
+                onChangeText={(masked, unmasked) => onChange(unmasked)}
+                mask={cepMask}
+                style={[props.style, formStyles.maskInput]}
+              />
+            )}
           />
         )}
       />
-      {errors.cep && (
-        <Text className="text-red-500 mb-2">{errors.cep.message}</Text>
-      )}
+      {errors.cep && <Text style={formStyles.error}>{errors.cep.message}</Text>}
 
       <Controller
         control={control}
         name="address"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="Endereço"
-            placeholderTextColor="#aaa"
+            label="Endereço"
             value={value}
             onChangeText={onChange}
-            className="bg-gray-800 text-white border border-gray-700 p-3 rounded mb-2"
+            mode="flat"
+            error={!!errors.address}
+            style={formStyles.input}
           />
         )}
       />
       {errors.address && (
-        <Text className="text-red-500 mb-2">{errors.address.message}</Text>
+        <Text style={formStyles.error}>{errors.address.message}</Text>
       )}
 
-      <Pressable
-        onPress={handleSubmit(onSubmit)}
-        className="bg-green-600 p-3 rounded mt-4"
-      >
-        <Text className="text-white text-center font-semibold">
+      <Pressable onPress={handleSubmit(onSubmit)} style={formStyles.button}>
+        <Text style={formStyles.buttonText}>
           {isEditing ? "Atualizar" : "Salvar"}
         </Text>
       </Pressable>

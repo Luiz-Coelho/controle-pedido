@@ -1,91 +1,43 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { View, Text, Pressable } from "react-native";
 import { OrderItemFormData } from "../schemas/orderSchema";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import orderItemCardStyles from "../styles/OrderItemCardStyles";
 
-interface Props {
-  index: number;
-  onRemove: () => void;
-}
+type Props = {
+  item: OrderItemFormData;
+  productName?: string;
+  onEdit: () => void;
+  onDelete: () => void;
+};
 
-export function OrderItemCard({ index, onRemove }: Props) {
-  const {
-    control,
-    watch,
-    formState: { errors },
-  } = useFormContext<{ items: OrderItemFormData[] }>();
-
-  const item = watch(`items.${index}`);
-  const total = (Number(item.price || 0) * Number(item.quantity || 0)).toFixed(
-    2
-  );
-
-  const fieldError = errors.items?.[index];
+export function OrderItemCard({ item, productName, onEdit, onDelete }: Props) {
+  const total = (item.price ?? 0) * (item.quantity ?? 0);
 
   return (
-    <View className="bg-gray-800 p-4 rounded-xl mt-4 border border-gray-700">
-      <Controller
-        control={control}
-        name={`items.${index}.productId`}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="ID do produto"
-            value={value?.toString()}
-            onChangeText={(text) => onChange(Number(text))}
-            keyboardType="numeric"
-            className="bg-gray-700 text-white p-2 rounded"
-            placeholderTextColor="#aaa"
-          />
-        )}
-      />
-      {fieldError?.productId && (
-        <Text className="text-red-500 mt-1">
-          {fieldError.productId.message}
-        </Text>
-      )}
+    <Pressable onPress={onEdit} style={orderItemCardStyles.container}>
+      <View style={orderItemCardStyles.content}>
+        <View style={orderItemCardStyles.infoArea}>
+          <Text style={orderItemCardStyles.name}>{productName}</Text>
+          <Text style={orderItemCardStyles.detail}>
+            Quantidade: {item.quantity}
+          </Text>
+          <Text style={orderItemCardStyles.detail}>
+            Unitário: R$ {item.price.toFixed(2)}
+          </Text>
+          <Text style={orderItemCardStyles.detail}>
+            Total: R$ {total.toFixed(2)}
+          </Text>
+        </View>
 
-      <Controller
-        control={control}
-        name={`items.${index}.quantity`}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Quantidade"
-            value={value?.toString()}
-            onChangeText={(text) => onChange(Number(text))}
-            keyboardType="numeric"
-            className="bg-gray-700 text-white p-2 rounded mt-3"
-            placeholderTextColor="#aaa"
-          />
-        )}
-      />
-      {fieldError?.quantity && (
-        <Text className="text-red-500 mt-1">{fieldError.quantity.message}</Text>
-      )}
-
-      <Controller
-        control={control}
-        name={`items.${index}.price`}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Preço (R$)"
-            value={value?.toString()}
-            onChangeText={(text) => onChange(Number(text))}
-            keyboardType="numeric"
-            className="bg-gray-700 text-white p-2 rounded mt-3"
-            placeholderTextColor="#aaa"
-          />
-        )}
-      />
-      {fieldError?.price && (
-        <Text className="text-red-500 mt-1">{fieldError.price.message}</Text>
-      )}
-
-      <Text className="text-gray-300 mt-3">Total: R$ {total}</Text>
-
-      <Pressable onPress={onRemove} className="bg-red-500 p-2 rounded mt-3">
-        <Text className="text-white text-center font-semibold">
-          Remover item
-        </Text>
-      </Pressable>
-    </View>
+        <View style={orderItemCardStyles.actionArea}>
+          <Pressable
+            onPress={onDelete}
+            style={orderItemCardStyles.deleteButton}
+          >
+            <Feather name="trash-2" size={16} color="#fff" />
+          </Pressable>
+        </View>
+      </View>
+    </Pressable>
   );
 }

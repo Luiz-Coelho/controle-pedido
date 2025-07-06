@@ -1,7 +1,8 @@
 CREATE TABLE `customers` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`cpfOrCnpj` text NOT NULL,
+	`document` text NOT NULL,
+	`document_type` text NOT NULL,
 	`cep` text NOT NULL,
 	`address` text NOT NULL
 );
@@ -19,8 +20,8 @@ CREATE TABLE `order_items` (
 CREATE TABLE `orders` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`order_id` integer NOT NULL,
-	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
 	FOREIGN KEY (`order_id`) REFERENCES `customers`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint

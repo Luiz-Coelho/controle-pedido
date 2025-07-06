@@ -4,7 +4,8 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const customers = sqliteTable("customers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  cpfOrCnpj: text("cpfOrCnpj").notNull(),
+  document: text("document").notNull(),
+  documentType: text("document_type").notNull(),
   cep: text("cep").notNull(),
   address: text("address").notNull(),
 });
@@ -20,12 +21,8 @@ export const orders = sqliteTable("orders", {
   customerId: integer("order_id")
     .notNull()
     .references(() => customers.id),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
 });
 
 export const orderItems = sqliteTable("order_items", {

@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 import { Product } from "../types/Product";
 import { Feather } from "@expo/vector-icons";
+import productCardStyles from "../styles/productCardStyles";
 
 type Props = {
   product: Product;
@@ -10,26 +11,22 @@ type Props = {
 
 export function ProductCard({ product, onPress, onDelete }: Props) {
   return (
-    <Pressable
-      onPress={onPress}
-      className="bg-gray-800 rounded-xl p-4 mb-4 border border-gray-700"
-    >
-      <View className="flex-row justify-between items-center">
-        <View className="flex-1">
-          <Text className="text-white text-lg font-semibold mb-1">
-            {product.name}
-          </Text>
-          <Text className="text-gray-300 text-sm">
-            Preço: R$ {(product.price / 100).toFixed(2)}
+    <Pressable onPress={onPress} style={productCardStyles.container}>
+      <View style={productCardStyles.content}>
+        {/* Área de informações */}
+        <View style={productCardStyles.infoArea}>
+          <Text style={productCardStyles.name}>{product.name}</Text>
+          <Text style={productCardStyles.detail}>
+            R$ {(product.price / 100).toFixed(2)}
           </Text>
         </View>
 
-        <Pressable
-          onPress={onDelete}
-          className="bg-red-600 p-2 rounded-lg ml-2"
-        >
-          <Feather name="trash-2" size={16} color="#fff" />
-        </Pressable>
+        {/* Botão de deletar */}
+        <View style={productCardStyles.actionArea}>
+          <Pressable onPress={onDelete} style={productCardStyles.deleteButton}>
+            <Feather name="trash-2" size={16} color="#fff" />
+          </Pressable>
+        </View>
       </View>
     </Pressable>
   );

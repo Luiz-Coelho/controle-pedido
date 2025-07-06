@@ -1,10 +1,21 @@
-import { View, ActivityIndicator, Text } from "react-native";
+import { Text } from "react-native";
+import { Screen } from "../components/Screen";
+import { Loading } from "../components/Loading";
 
 export function LoadingScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#2563eb" />
-      <Text style={{ marginTop: 12, color: "#444" }}>Inicializando app...</Text>
-    </View>
+    <Screen>
+      <Loading />
+      <Text
+        style={{
+          marginTop: 16,
+          color: "#999",
+          fontSize: 16,
+          textAlign: "center",
+        }}
+      >
+        Inicializando app...
+      </Text>
+    </Screen>
   );
 }

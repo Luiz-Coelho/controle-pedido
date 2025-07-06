@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  TextInput,
-  FlatList,
-  Text,
-  Pressable,
-  Keyboard,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+import DropDownPicker from "react-native-dropdown-picker";
+import { theme } from "../styles/theme";
 
 type Option = {
   label: string;
@@ -22,73 +15,58 @@ type Props = {
 };
 
 export function ComboBox({ options, value, onChange, placeholder }: Props) {
-  const [query, setQuery] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  useEffect(() => {
-    const selected = options.find((opt) => opt.value === value);
-    if (selected) {
-      setQuery(selected.label);
-    } else {
-      setQuery("");
-    }
-  }, [value, options]);
-
-  const filtered = options.filter((opt) =>
-    opt.label.toLowerCase().includes(query.toLowerCase())
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<Option[]>([]);
+  const [internalValue, setInternalValue] = useState<number | null>(
+    value ?? null
   );
 
-  const handleSelect = (val: number, label: string) => {
-    setQuery(label);
-    setShowDropdown(false);
-    Keyboard.dismiss();
-    onChange(val);
-  };
+  useEffect(() => {
+    setItems(options);
+  }, [options]);
 
-  const handleClear = () => {
-    setQuery("");
-    onChange(undefined);
-  };
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
 
   return (
-    <View className="relative z-10">
-      <View className="flex-row items-center bg-gray-800 rounded px-3 py-2 border border-gray-600">
-        <Feather name="search" size={16} color="#ccc" className="mr-2" />
-        <TextInput
-          value={query}
-          onChangeText={(text) => {
-            setQuery(text);
-            setShowDropdown(true);
-          }}
-          onFocus={() => setShowDropdown(true)}
-          placeholder={placeholder || "Selecione..."}
-          placeholderTextColor="#aaa"
-          className="flex-1 text-white"
-        />
-        {query.length > 0 && (
-          <Pressable onPress={handleClear} className="ml-2">
-            <Feather name="x" size={16} color="#ccc" />
-          </Pressable>
-        )}
-      </View>
-
-      {showDropdown && filtered.length > 0 && (
-        <View className="absolute top-14 left-0 right-0 bg-gray-900 border border-gray-700 rounded shadow-lg max-h-48">
-          <FlatList
-            data={filtered}
-            keyboardShouldPersistTaps="handled"
-            keyExtractor={(item) => item.value.toString()}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => handleSelect(item.value, item.label)}
-                className="px-4 py-2 border-b border-gray-800 hover:bg-gray-700"
-              >
-                <Text className="text-white">{item.label}</Text>
-              </Pressable>
-            )}
-          />
-        </View>
-      )}
-    </View>
+    <DropDownPicker
+      open={open}
+      value={internalValue}
+      items={items}
+      setOpen={setOpen}
+      setValue={(cb) => {
+        const newVal = cb(internalValue);
+        onChange(newVal ?? undefined);
+        setInternalValue(newVal ?? null);
+      }}
+      setItems={setItems}
+      placeholder={placeholder || "Selecione..."}
+      listMode="SCROLLVIEW"
+      zIndex={1000}
+      zIndexInverse={3000}
+      style={{
+        backgroundColor: theme.colors.background,
+        borderColor: theme.colors.surface,
+        borderWidth: 1,
+        borderRadius: theme.radius.md,
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.sm,
+        marginBottom: theme.spacing.lg,
+      }}
+      textStyle={{
+        color: theme.colors.text,
+        fontSize: 16,
+      }}
+      dropDownContainerStyle={{
+        backgroundColor: theme.colors.background,
+        borderColor: theme.colors.surface,
+      }}
+      placeholderStyle={{
+        color: theme.colors.placeholder,
+      }}
+    />
   );
 }

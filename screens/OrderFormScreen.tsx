@@ -2,7 +2,6 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ActivityIndicator, View } from "react-native";
 
 import { Navigation } from "../types/Navigation";
 import { OrderService } from "../services/OrderService";
@@ -10,6 +9,10 @@ import { OrderFormData, orderSchema } from "../schemas/orderSchema";
 import { showError, showSuccess } from "../utils/showToast";
 import { OrderForm } from "../components/OrderForm";
 import { Screen } from "../components/Screen";
+import { Order } from "../types/Order";
+import { Product } from "../types/Product";
+import { ProductService } from "../services/ProductService";
+import { Loading } from "../components/Loading";
 
 type RouteParams = { orderId?: number };
 
@@ -19,6 +22,22 @@ export default function OrderFormScreen() {
   const { orderId } = route.params as RouteParams;
 
   const [loading, setLoading] = useState<boolean>(!!orderId);
+  const [order, setOrder] = useState<Order | null>(null);
+
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const result = await ProductService.getAll();
+        setProducts(result);
+      } catch {
+        showError("Erro ao carregar produtos.");
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -37,6 +56,8 @@ export default function OrderFormScreen() {
         }
 
         const { order, items } = result;
+
+        setOrder(order);
 
         form.reset({
           customerId: order.customerId,
@@ -58,13 +79,22 @@ export default function OrderFormScreen() {
 
   const onSubmit = async (data: OrderFormData) => {
     try {
-      if (orderId) {
+      if (orderId && order) {
         await OrderService.update(orderId, {
           customerId: data.customerId,
+          createdAt: order.createdAt,
+          updatedAt: Date.now(),
         });
         showSuccess("Pedido atualizado com sucesso!");
       } else {
-        await OrderService.add(data, data.items);
+        await OrderService.add(
+          {
+            customerId: data.customerId,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          },
+          data.items
+        );
         showSuccess("Pedido criado com sucesso!");
       }
 
@@ -75,17 +105,17 @@ export default function OrderFormScreen() {
   };
 
   if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-950">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
     <Screen>
       <FormProvider {...form}>
-        <OrderForm onSubmit={onSubmit} isEditing={!!orderId} />
+        <OrderForm
+          onSubmit={onSubmit}
+          isEditing={!!orderId}
+          products={products}
+        />
       </FormProvider>
     </Screen>
   );

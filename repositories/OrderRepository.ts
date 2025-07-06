@@ -18,9 +18,11 @@ export const createOrder = async (
   }
 
   return await db.transaction(async (tx) => {
+    const now = Date.now();
+
     const result = await tx
       .insert(orders)
-      .values(data)
+      .values({ ...data, createdAt: now, updatedAt: now })
       .returning({ id: orders.id });
 
     const orderId = result[0].id;
@@ -63,7 +65,7 @@ export const updateOrder = async (
 ): Promise<void> => {
   await db
     .update(orders)
-    .set({ ...data, updatedAt: sql`CURRENT_TIMESTAMP` })
+    .set({ ...data, updatedAt: Date.now() })
     .where(eq(orders.id, id));
 };
 
@@ -80,6 +82,6 @@ export const touchOrderUpdatedAt = async (
 ): Promise<void> => {
   await tx
     .update(orders)
-    .set({ updatedAt: sql`CURRENT_TIMESTAMP` })
+    .set({ updatedAt: Date.now() })
     .where(eq(orders.id, orderId));
 };

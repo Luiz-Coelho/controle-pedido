@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Product } from "../types/Product";
+import { Text, View } from "react-native";
 import { ProductService } from "../services/ProductService";
+import { Product } from "../types/Product";
 import { showError } from "../utils/showToast";
 import { ComboBox } from "./ComboBox";
-import { Text } from "react-native";
+import { formStyles } from "../styles/formStyles";
 
 type Props = {
   value: number | undefined;
@@ -15,16 +16,9 @@ export function ProductSelect({ value, onChange, error }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const list = await ProductService.getAll();
-        setProducts(list);
-      } catch (error) {
-        showError("Erro ao carregar produtos.");
-      }
-    };
-
-    fetchProducts();
+    ProductService.getAll()
+      .then(setProducts)
+      .catch(() => showError("Erro ao carregar produtos."));
   }, []);
 
   const options = products.map((product) => ({
@@ -33,14 +27,14 @@ export function ProductSelect({ value, onChange, error }: Props) {
   }));
 
   return (
-    <>
+    <View style={{ zIndex: 900 }}>
       <ComboBox
         options={options}
         value={value}
         onChange={onChange}
         placeholder="Selecione um Produto"
       />
-      {error && <Text className="text-red-500 mt-1">{error}</Text>}
-    </>
+      {error && <Text style={formStyles.error}>{error}</Text>}
+    </View>
   );
 }
